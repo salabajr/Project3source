@@ -21,6 +21,7 @@ void Actor::setHealth(int health)
 }
 StudentWorld* Actor::getWorld()
 {
+
     return m_world;
 }
 
@@ -33,38 +34,65 @@ Avatar::Avatar(int imageID, double startX, double startY, StudentWorld* world) :
     setHealth(20);
     setVisible(true);
 }
+void Avatar::moveAvatar(int directionKey)
+{
+    switch (directionKey) {
+        case left:
+            setDirection(left);
+            if (getWorld()->isValidPos(getX()-1, getY()))
+            {
+                getWorld()->pushActors(getX()-1, getY(), left);
+                moveTo(getX()-1, getY());
+
+            }
+            break;
+        case right:
+            setDirection(right);
+            if (getWorld()->isValidPos(getX()+1, getY()))
+            {
+                getWorld()->pushActors(getX()+1, getY(), right);
+                moveTo(getX()+1, getY());
+            }
+            break;
+        case up:
+            setDirection(up);
+            if (getWorld()->isValidPos(getX(), getY()+1))
+            {
+                getWorld()->pushActors(getX(), getY()+1, up);
+                moveTo(getX(), getY()+1);
+            }
+            break;
+        case down:
+            setDirection(down);
+            if (getWorld()->isValidPos(getX(), getY()-1))
+            {
+                getWorld()->pushActors(getX(), getY()-1, down);
+                moveTo(getX(), getY()-1);
+            }
+            break;
+        default:
+            break;
+    }
+}
 void Avatar::doSomething()
 {
     if (!Alive())
         return;
     int ch;
-    if (getWorld()->getKey(ch))
+    if(getWorld()->getKey(ch))
     {
         switch (ch) {
-            case KEY_PRESS_LEFT:
-                if (getWorld()->isValidPos(getX()-1, getY()))
-                {
-                    setDirection(left);
-                    moveTo(getX()-1, getY());
-                }
-                break;
-            case KEY_PRESS_RIGHT:
-                if (getWorld()->isValidPos(getX()+1, getY())){
-                    setDirection(right);
-                    moveTo(getX()+1, getY());
-                }
-                break;
             case KEY_PRESS_UP:
-                if (getWorld()->isValidPos(getX(), getY()+1)){
-                    setDirection(up);
-                    moveTo(getX(), getY()+1);
-                }
+                moveAvatar(up);
                 break;
             case KEY_PRESS_DOWN:
-                if (getWorld()->isValidPos(getX(), getY()-1)){
-                    setDirection(down);
-                    moveTo(getX(), getY()-1);
-                }
+                moveAvatar(down);
+                break;
+            case KEY_PRESS_RIGHT:
+                moveAvatar(right);
+                break;
+            case KEY_PRESS_LEFT:
+                moveAvatar(left);
                 break;
             case KEY_PRESS_SPACE:
                 // add pea DO Later
@@ -73,10 +101,10 @@ void Avatar::doSomething()
                 setHealth(0);
                 break;
             default:
+                moveAvatar(ch);
                 break;
         }
     }
-        
 }
 
 // WALL
@@ -84,8 +112,52 @@ Wall::Wall(int imageID, double startX, double startY, StudentWorld* world) : Act
 {
     setVisible(true);
 }
+    
 void Wall::doSomething()
 {
     return;
 }
 
+// MARBLE
+Marble::Marble(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
+{
+    setVisible(true);
+    setHealth(10);
+}
+
+void Marble::push(int direction, double X, double Y)
+{
+    switch (direction) {
+        case right:
+            if (getWorld()->isEmpty(X+1, Y))
+            {
+                moveTo(X+1, Y);
+                return;
+            }
+            break;
+        case left:
+            if (getWorld()->isEmpty(X-1, Y))
+            {
+                moveTo(X-1, Y);
+                return;
+            }
+            break;
+        case up:
+            if (getWorld()->isEmpty(X, Y+1))
+            {
+                moveTo(X, Y+1);
+                return;
+            }
+            break;
+        case down:
+            if (getWorld()->isEmpty(X, Y-1))
+            {
+                moveTo(X, Y-1);
+                return;
+            }
+            break;
+        default:
+            break;
+    }
+    return;
+}

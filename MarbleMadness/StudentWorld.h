@@ -9,6 +9,7 @@
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
+
 class StudentWorld : public GameWorld
 {
 public:
@@ -20,6 +21,10 @@ public:
   virtual void cleanUp();
     void addActor(Actor* actor);
     bool isValidPos(double x, double y);
+    bool isEmpty(double x, double y);
+    void pushActors(double x, double y, int direction);
+
+    
 
 
 

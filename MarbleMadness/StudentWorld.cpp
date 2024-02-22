@@ -57,6 +57,9 @@ int StudentWorld::init()
                     case Level::wall:
                         addActor(new Wall(IID_WALL, x, y, this));
                         break;
+                    case Level::marble:
+                        addActor(new Marble(IID_MARBLE, x, y, this));
+                        break;
                     default:
                         break;
                 }
@@ -77,6 +80,8 @@ int StudentWorld::move()
      // The term "actors" refers to all robots, the player, Goodies,
      // Marbles, Crystals, Pits, Peas, the exit, etc.
      // Give each actor a chance to do something
+
+
 
     m_avatar->doSomething();
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
@@ -126,7 +131,7 @@ int StudentWorld::move()
 
     setGameStatText(oss.str());
     // This code is here merely to allow the game to build, run, and terminate after you type q
-    setGameStatText("Game will end when you type q");
+    //setGameStatText("Game will end when you type q");
 
     return GWSTATUS_CONTINUE_GAME;
 
@@ -138,7 +143,7 @@ void StudentWorld::cleanUp()
 {
     delete m_avatar;
     m_avatar = nullptr;
-    for (auto it = m_actors.begin(); it != m_actors.end(); ++it)
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ++it)
     {
         delete *it;
     }
@@ -154,13 +159,60 @@ bool StudentWorld::isValidPos(double x, double y)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
-        if ((*it)->blocks())
+        if ((*it)->getX() == x && (*it)->getY() == y)
         {
+            if ((*it)->canAvatarOverlap() == 0)
+                return false;
+            if ((*it)->canAvatarOverlap() == 1)
+                return true;
+            if ((*it)->canAvatarOverlap() == 2)
+            {
+                int direction = m_avatar->getDirection();
+                if (direction == Actor::down)
+                {
+                    if (isEmpty(x, y-1))
+                        return true;
+                }
+                else if (direction == Actor::up)
+                {
+                    if (isEmpty(x, y+1))
+                        return true;
+                }
+                else if (direction == Actor::right)
+                {
+                    if (isEmpty(x+1, y))
+                        return true;
+                }
+                else if (direction == Actor::left)
+                {
+                    if (isEmpty(x-1, y))
+                        return true;
+                }
+                return false;
+            }
+        }
+        
+    }
+    return true;
+}
+bool StudentWorld::isEmpty(double x, double y)
+{
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
             if ((*it)->getX() == x && (*it)->getY() == y)
             {
                 return false;
             }
-        }
     }
     return true;
+}
+
+void StudentWorld::pushActors(double x, double y, int direction)
+{
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if ((*it)->getX() == x && (*it)->getY() == y)
+            (*it)->push(direction, x, y);
+    }
+    return;
 }
