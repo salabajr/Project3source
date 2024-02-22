@@ -111,6 +111,7 @@ void Avatar::doSomething()
 Wall::Wall(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
 {
     setVisible(true);
+    setHealth(9999);
 }
     
 void Wall::doSomething()
@@ -160,4 +161,25 @@ void Marble::push(int direction, double X, double Y)
             break;
     }
     return;
+}
+
+
+// PIT
+Pit::Pit(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
+{
+    setVisible(true);
+    setHealth(99999);
+}
+
+void Pit::doSomething()
+{
+    if (!Alive())
+        return;
+    Actor *p = getWorld()->getActor(getX(),getY());
+    if (p != nullptr && p->canAvatarOverlap() == 2)
+    {
+        setHealth(0);
+        p->setHealth(0);
+    }
+        
 }

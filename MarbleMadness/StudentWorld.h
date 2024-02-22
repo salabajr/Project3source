@@ -23,7 +23,8 @@ public:
     bool isValidPos(double x, double y);
     bool isEmpty(double x, double y);
     void pushActors(double x, double y, int direction);
-
+    Actor* getActor(double x, double y);
+    void removeDeadGameObjects();
     
 
 

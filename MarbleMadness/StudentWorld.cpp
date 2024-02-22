@@ -60,6 +60,8 @@ int StudentWorld::init()
                     case Level::marble:
                         addActor(new Marble(IID_MARBLE, x, y, this));
                         break;
+                    case Level::pit:
+                        addActor(new Pit(IID_PIT, x, y, this));
                     default:
                         break;
                 }
@@ -106,7 +108,7 @@ int StudentWorld::move()
 
 
     // Remove newly-dead actors after each tick
-    //removeDeadGameObjects(); // delete dead game objects
+    removeDeadGameObjects(); // delete dead game objects
     // Reduce the current bonus for the Level by one
     //increaseScore(-1);
     // If the player has collected all of the crystals on the level, then we
@@ -199,10 +201,10 @@ bool StudentWorld::isEmpty(double x, double y)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
-            if ((*it)->getX() == x && (*it)->getY() == y)
-            {
-                return false;
-            }
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it)->isObstacle())
+            return true;
+        else if ((*it)->getX() == x && (*it)->getY() == y)
+            return false;
     }
     return true;
 }
@@ -215,4 +217,26 @@ void StudentWorld::pushActors(double x, double y, int direction)
             (*it)->push(direction, x, y);
     }
     return;
+}
+Actor* StudentWorld::getActor(double x, double y)
+{
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if ((*it)->getX() == x && (*it)->getY() == y)
+            return *it;
+    }
+    return nullptr;
+}
+
+void StudentWorld::removeDeadGameObjects()
+{
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if (!(*it)->Alive())
+        {
+            delete (*it);
+            it = m_actors.erase(it);
+        }
+            
+    }
 }
