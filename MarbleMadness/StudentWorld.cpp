@@ -16,8 +16,10 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
+    m_bonus = 1000;
     m_avatar = nullptr;
     m_actors.clear();
+    m_levelDone = false;
     
 }
 
@@ -31,7 +33,16 @@ void StudentWorld::addActor(Actor* actor)
 int StudentWorld::init()
 {
     Level lev(assetPath());
-    Level::LoadResult result = lev.loadLevel("level00.txt");
+    
+    int lvl = getLevel();
+    char lvlStr[3];
+    snprintf(lvlStr, 3, "%02d", lvl);
+    string level = "level" + (string) lvlStr + ".txt";
+//    if (getLevel() < 10)
+//        level = "level0" + to_string(getLevel()) + ".txt";
+//    else if (getLevel() >= 10)
+//        level = "level" + to_string(getLevel()) + ".txt";
+    Level::LoadResult result = lev.loadLevel(level);
     if (result == Level::load_fail_file_not_found)
     {
         cerr << "Could not find level00.txt data file\n";
@@ -45,9 +56,9 @@ int StudentWorld::init()
     else if (result == Level::load_success)
     {
         cerr << "Successfully loaded level\n";
-        for (int x = 0; x <= VIEW_WIDTH; x++)
+        for (int x = 0; x < VIEW_WIDTH; x++)
         {
-            for (int y = 0; y <= VIEW_HEIGHT; y++)
+            for (int y = 0; y < VIEW_HEIGHT; y++)
             {
                 Level::MazeEntry ge = lev.getContentsOf(x,y);
                 switch (ge) {
@@ -62,6 +73,20 @@ int StudentWorld::init()
                         break;
                     case Level::pit:
                         addActor(new Pit(IID_PIT, x, y, this));
+                        break;
+                    case Level::crystal:
+                        addActor(new Crystal(IID_CRYSTAL, x, y, this, 50));
+                        m_crystals++;
+                        break;
+                    case Level::extra_life:
+                        addActor(new extraLife(IID_EXTRA_LIFE, x, y, this, 1000));
+                        break;
+                    case Level::restore_health:
+                        addActor(new restoreHealth(IID_RESTORE_HEALTH, x, y, this, 500));
+                        break;
+                    case Level::exit:
+                        addActor(new Exit(IID_EXIT, x, y, this));
+                        break;
                     default:
                         break;
                 }
@@ -73,19 +98,12 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-
     // Update the Game Status Line
-
-    //NEED TO BE IMPLEMENTED
-    //updateDisplayText(); // update the score/lives/level text at screen top
+    updateDisplayText(); // update the score/lives/level text at screen top
 
      // The term "actors" refers to all robots, the player, Goodies,
      // Marbles, Crystals, Pits, Peas, the exit, etc.
      // Give each actor a chance to do something
-
-
-
-    m_avatar->doSomething();
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if ((*it)->Alive())
@@ -93,53 +111,34 @@ int StudentWorld::move()
          // ask each actor to do something (e.g. move)
          (*it)->doSomething();
         }
+        
         if (!m_avatar->Alive())
         {
             decLives();
             return GWSTATUS_PLAYER_DIED;
         }
-
-    // IMPLEMENT LATER
-    //if (thePlayerCompletedTheCurrentLevel())
-    //{
-    //increaseScoreAppropriately();
-    //return GWSTATUS_FINISHED_LEVEL;
+        
+        if (m_levelDone == true)
+        {
+            m_levelDone = false;
+            m_bonus = 1000;
+            return GWSTATUS_FINISHED_LEVEL;
+        }
     }
-
-
+    m_avatar->doSomething();
     // Remove newly-dead actors after each tick
     removeDeadGameObjects(); // delete dead game objects
     // Reduce the current bonus for the Level by one
-    //increaseScore(-1);
-    // If the player has collected all of the crystals on the level, then we
-    // must expose the exit so the player can advance to the next level
-    //if (thePlayerHasCollectedAllOfTheCrystalsOnTheLevel())
-    //exposeTheExitInTheMaze(); // make the exit Active
-    // return the proper result
-    //if (thePlayerDiedDuringThisTick())
-    //return GWSTATUS_PLAYER_DIED;
-    //if (thePlayerCompletedTheCurrentLevel())
-    //    return GWSTATUS_FINISHED_LEVEL;
-    //{
-    //increaseScoreAppropriately();
+    if (m_bonus > 0)
+        m_bonus--;
+    if (!m_avatar->Alive())
+        return GWSTATUS_PLAYER_DIED;;
 
-    ostringstream oss;
-    oss.fill('0');
-    oss << "Score: " << setw(7) << getScore() << "  Level: " << setw(2) << getLevel();
-    oss.fill(' ');
-    oss << "  Lives: " << setw(2) << getLives() << "  Health: " << setw(3) << m_avatar->getHealth()/0.2 << "%";
-    oss << "  Ammo: " << setw(3); // << m_avatar->getAmmo();
-    oss << "  Bonus: " << setw(4);
-
-    setGameStatText(oss.str());
     // This code is here merely to allow the game to build, run, and terminate after you type q
     //setGameStatText("Game will end when you type q");
 
     return GWSTATUS_CONTINUE_GAME;
-
 }
-
-
 
 void StudentWorld::cleanUp()
 {
@@ -218,11 +217,11 @@ void StudentWorld::pushActors(double x, double y, int direction)
     }
     return;
 }
-Actor* StudentWorld::getActor(double x, double y)
+Actor* StudentWorld::getActor(double x, double y, Actor* p)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
-        if ((*it)->getX() == x && (*it)->getY() == y)
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it) != p)
             return *it;
     }
     return nullptr;
@@ -230,13 +229,30 @@ Actor* StudentWorld::getActor(double x, double y)
 
 void StudentWorld::removeDeadGameObjects()
 {
-    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); )
     {
         if (!(*it)->Alive())
         {
             delete (*it);
             it = m_actors.erase(it);
         }
+        else
+        {
+            it++;
+        }
             
     }
 }
+void StudentWorld::updateDisplayText()
+{
+    ostringstream oss;
+    oss.fill('0');
+    oss << "Score: " << setw(7) << getScore() << "  Level: " << setw(2) << getLevel();
+    oss.fill(' ');
+    oss << "  Lives: " << setw(2) << getLives() << "  Health: " << setw(3) << m_avatar->getHealth()/0.2 << "%";
+    oss << "  Ammo: " << setw(3) << m_avatar->getAmmo();
+    oss << "  Bonus: " << setw(4) << m_bonus;
+    setGameStatText(oss.str());
+}
+
+
