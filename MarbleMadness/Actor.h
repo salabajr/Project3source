@@ -22,7 +22,6 @@ public:
     virtual void push(int direction, double X, double Y ) {return;}
     virtual bool isObstacle() {return false;}
     virtual bool blocks() {return false;}
-    virtual bool isExit() {return false;}
     virtual bool canTakeDamage() {return false;}
     void makeVisible() {setVisible(true);}
 protected:
@@ -56,6 +55,7 @@ public:
     void moveAvatar(int direction);
     bool canTakeDamage() {return true;}
     int getAmmo() {return numPeas;}
+    void addAmmo(int amount) {numPeas += amount;}
 private:
     void fire(int direction, double x, double y);
     int numPeas;
@@ -104,7 +104,6 @@ class extraLife : public Item
 public:
     extraLife(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
     void doSomething();
-    
 };
 
 class restoreHealth : public Item
@@ -113,6 +112,13 @@ public:
     restoreHealth(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
     void doSomething();
     
+};
+
+class Ammo : public Item
+{
+public:
+    Ammo(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
+    void doSomething();
 };
 
 class Pea : public Actor
@@ -136,7 +142,6 @@ public:
     int canAvatarOverlap() {return 1;}
     void exposeExit();
     void doSomething();
-    bool isExit() {return true;}
 private:
     bool m_exitExposed;
 };

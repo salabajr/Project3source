@@ -84,6 +84,9 @@ int StudentWorld::init()
                     case Level::restore_health:
                         addActor(new restoreHealth(IID_RESTORE_HEALTH, x, y, this, 500));
                         break;
+                    case Level::ammo:
+                        addActor(new Ammo(IID_AMMO, x, y, this, 100));
+                        break;
                     case Level::exit:
                         addActor(new Exit(IID_EXIT, x, y, this));
                         break;

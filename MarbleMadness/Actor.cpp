@@ -98,7 +98,8 @@ void Avatar::doSomething()
                 moveAvatar(left);
                 break;
             case KEY_PRESS_SPACE:
-                fire(getDirection(), getX(), getY());
+                if (numPeas > 0)
+                    fire(getDirection(), getX(), getY());
                 break;
             case KEY_PRESS_ESCAPE:
                 setHealth(0);
@@ -316,6 +317,13 @@ void restoreHealth::doSomething()
         getWorld()->getAvatar()->setHealth(20);
 }
 
+// Ammo
+
+void Ammo::doSomething()
+{
+    if (updateItem())
+        getWorld()->getAvatar()->addAmmo(20);
+}
 // EXIT
 
 void Exit::doSomething()
@@ -330,15 +338,12 @@ void Exit::doSomething()
     }
     if (getWorld()->getCrystals() <= 0 && m_exitExposed == false)
     {
-        std::cerr << "hello1";
         exposeExit();
     }
 }
 
-
 void Exit::exposeExit()
 {
-    std::cerr << "hello";
     makeVisible();
     m_exitExposed = true;
     getWorld()->playSound(SOUND_REVEAL_EXIT);
