@@ -17,6 +17,7 @@ public:
     virtual void updateHealth(int health);
     virtual void doSomething() = 0;
     StudentWorld* getWorld();
+    virtual bool canPushMarbles() const {return false;}
     virtual int canAvatarOverlap() {return 0;} // 0 walls, bots, pits 1: goodies 2: marbles
     void setHealth(int health);
     virtual void push(int direction, double X, double Y ) {return;}
@@ -24,8 +25,9 @@ public:
     virtual bool blocks() {return false;}
     virtual bool canTakeDamage() {return false;}
     void makeVisible() {setVisible(true);}
+    virtual void damage(int damageAmt);
 protected:
-    void moveActor(int direction);
+    void moveActor(double x, double y, int dx, int dy);
     
     
 private:
@@ -48,12 +50,12 @@ private:
 class Avatar : public Actor
 {
 public:
-    // need to add PEAS
     Avatar(int imageID, double startX, double startY, StudentWorld* world);
     void doSomething();
     int getAvatarDirection() {return getDirection();}
     void moveAvatar(int direction);
     bool canTakeDamage() {return true;}
+    virtual bool canPushMarbles() const {return true;}
     int getAmmo() {return numPeas;}
     void addAmmo(int amount) {numPeas += amount;}
 private:
@@ -144,6 +146,34 @@ public:
     void doSomething();
 private:
     bool m_exitExposed;
+};
+
+class Robot : public Actor
+{
+public:
+    Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world);
+    //virtual void doSomething() const;
+    virtual bool canTakeDamage() {return true;}
+    virtual void damage(int damageAmt);
+    virtual bool canPushMarbles() const {return false;}
+//    virtual bool blocks() {return true;}
+    //virtual bool needsClearShot() const;
+    //virtual int shootingSound() const;
+
+      // Does this robot shoot?
+    virtual bool isShootingRobot() const {return false;}
+private:
+    int m_score;
+};
+
+class RageBot : public Robot
+{
+public:
+    RageBot(int startX, int startY, int startDir, StudentWorld* world);
+    virtual void doSomething();
+    virtual bool isShootingRobot() const {return true;}
+private:
+    int m_ticks;
 };
 
 #endif // ACTOR_H_

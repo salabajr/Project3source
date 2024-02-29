@@ -64,6 +64,21 @@
                   endingLineNumber = "47"
                   offsetFromSymbolStart = "348">
                </Location>
+               <Location
+                  uuid = "FF92B8AE-B3D9-43A1-83D5-EA2D15B0A5F8 - cf9cd394fcbb6dd4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "StudentWorld::init()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/StudentWorld.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "58"
+                  endingLineNumber = "58"
+                  offsetFromSymbolStart = "556">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -77,8 +92,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "96"
-            endingLineNumber = "96"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
             landmarkName = "StudentWorld::init()"
             landmarkType = "7">
          </BreakpointContent>
@@ -93,8 +108,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "103"
+            endingLineNumber = "103"
             landmarkName = "StudentWorld::init()"
             landmarkType = "7">
             <Locations>
@@ -220,8 +235,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "102"
-            endingLineNumber = "102"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
             landmarkName = "StudentWorld::move()"
             landmarkType = "7">
             <Locations>
@@ -285,6 +300,21 @@
                   endingLineNumber = "86"
                   offsetFromSymbolStart = "28">
                </Location>
+               <Location
+                  uuid = "0B913D12-83F3-4A89-A2A7-AB5C7F9E240B - ce994f020bc0f10c"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "StudentWorld::move()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/StudentWorld.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "111"
+                  endingLineNumber = "111"
+                  offsetFromSymbolStart = "24">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -298,8 +328,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "122"
-            endingLineNumber = "122"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
             landmarkName = "StudentWorld::move()"
             landmarkType = "7">
          </BreakpointContent>
@@ -314,8 +344,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "25"
-            endingLineNumber = "25"
+            startingLineNumber = "39"
+            endingLineNumber = "39"
             landmarkName = "Actor::getWorld()"
             landmarkType = "7">
             <Locations>
@@ -379,6 +409,21 @@
                   endingLineNumber = "29"
                   offsetFromSymbolStart = "12">
                </Location>
+               <Location
+                  uuid = "F0EFF864-2924-45D8-9261-A7CBA8A922FB - 7e8978ad4e48b523"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Actor::getWorld()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/Actor.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "12">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -392,8 +437,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "80"
-            endingLineNumber = "80"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
             landmarkName = "Avatar::doSomething()"
             landmarkType = "7">
             <Locations>
@@ -427,6 +472,21 @@
                   endingLineNumber = "83"
                   offsetFromSymbolStart = "24">
                </Location>
+               <Location
+                  uuid = "495CDA86-4424-4C75-9F74-6137758C0555 - a932038a642eee84"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Avatar::doSomething()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/Actor.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "96"
+                  endingLineNumber = "96"
+                  offsetFromSymbolStart = "24">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -440,8 +500,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
             landmarkName = "StudentWorld::init()"
             landmarkType = "7">
             <Locations>
@@ -490,6 +550,21 @@
                   endingLineNumber = "69"
                   offsetFromSymbolStart = "908">
                </Location>
+               <Location
+                  uuid = "39991AE5-9A5F-4536-85C6-1A6569E60A6F - cf9cd394fcbb17c5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "StudentWorld::init()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/StudentWorld.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "105"
+                  endingLineNumber = "105"
+                  offsetFromSymbolStart = "2016">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -519,8 +594,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "85"
-            endingLineNumber = "85"
+            startingLineNumber = "99"
+            endingLineNumber = "99"
             landmarkName = "Avatar::doSomething()"
             landmarkType = "7">
             <Locations>
@@ -554,6 +629,21 @@
                   endingLineNumber = "86"
                   offsetFromSymbolStart = "44">
                </Location>
+               <Location
+                  uuid = "F879178E-5300-43B8-8488-2BBDB364D1B3 - a932038a642eeee9"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Avatar::doSomething()"
+                  moduleName = "MarbleMadness"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/nathanwei/Desktop/CS32/CS32-Project3/MarbleMadness/Project3source/MarbleMadness/Actor.cpp"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "99"
+                  endingLineNumber = "99"
+                  offsetFromSymbolStart = "44">
+               </Location>
             </Locations>
          </BreakpointContent>
       </BreakpointProxy>
@@ -567,8 +657,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
+            startingLineNumber = "222"
+            endingLineNumber = "222"
             landmarkName = "StudentWorld::pushActors(x, y, direction)"
             landmarkType = "7">
          </BreakpointContent>
@@ -583,8 +673,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "220"
-            endingLineNumber = "220"
+            startingLineNumber = "233"
+            endingLineNumber = "233"
             landmarkName = "Marble::push(direction, X, Y)"
             landmarkType = "7">
          </BreakpointContent>
@@ -599,9 +689,9 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
-            landmarkName = "StudentWorld::isValidPos(x, y)"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
+            landmarkName = "StudentWorld::isValidPos(x, y, p)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -615,8 +705,8 @@
             filePath = "MarbleMadness/StudentWorld.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
+            startingLineNumber = "210"
+            endingLineNumber = "210"
             landmarkName = "StudentWorld::isEmpty(x, y)"
             landmarkType = "7">
          </BreakpointContent>
@@ -631,8 +721,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "111"
+            endingLineNumber = "111"
             landmarkName = "Avatar::doSomething()"
             landmarkType = "7">
          </BreakpointContent>
@@ -647,8 +737,8 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "88"
-            endingLineNumber = "88"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
             landmarkName = "Avatar::doSomething()"
             landmarkType = "7">
          </BreakpointContent>
@@ -663,9 +753,25 @@
             filePath = "MarbleMadness/Actor.cpp"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
+            startingLineNumber = "101"
+            endingLineNumber = "101"
             landmarkName = "Avatar::doSomething()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BE38C280-29FA-46F6-805F-30205BD920D9"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MarbleMadness/Actor.cpp"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "191"
+            endingLineNumber = "191"
+            landmarkName = "Pea::step2()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

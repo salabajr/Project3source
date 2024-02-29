@@ -19,10 +19,11 @@ public:
     virtual int move();
     virtual void cleanUp();
     void addActor(Actor* actor);
-    bool isValidPos(double x, double y);
+    bool isValidPos(double x, double y, Actor* p);
     bool isEmpty(double x, double y);
     void pushActors(double x, double y, int direction);
     Actor* getActor(double x, double y, Actor* p);
+    Actor* getTarget(double x, double y, Actor* p);
     void removeDeadGameObjects();
     void updateDisplayText();
     Avatar* getAvatar() {return m_avatar;}
@@ -31,7 +32,7 @@ public:
     void pickupCrystal() {m_crystals--;}
     void completedLevel() {m_levelDone = true;}
     int getBonus() {return m_bonus;}
-
+    bool existsClearShotToPlayer(int x, int y, int dx, int dy);
 
 private:
     std::list<Actor*> m_actors;

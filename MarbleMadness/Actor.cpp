@@ -1,9 +1,19 @@
 #include "Actor.h"
 #include "StudentWorld.h"
 
-void Actor::moveActor(int direction)
+void Actor::moveActor(double x, double y, int dx, int dy)
 {
-    return;
+    if (getWorld()->isValidPos(x+dx, y+dy, this))
+    {
+        moveTo(x+dx, y+dy);
+        return;
+    }
+    else
+    {
+        setDirection(getDirection() + 180);
+        return;
+    }
+        
 }
 bool Actor::Alive() const
 {
@@ -14,9 +24,13 @@ int Actor::getHealth() const
 {
     return m_health;
 }
- void Actor::updateHealth(int health)
+void Actor::updateHealth(int health)
 {
     m_health += health;
+}
+void Actor::damage(int damageAmt)
+{
+    updateHealth(-2);
 }
 void Actor::setHealth(int health)
 {
@@ -43,7 +57,7 @@ void Avatar::moveAvatar(int directionKey)
     switch (directionKey) {
         case left:
             setDirection(left);
-            if (getWorld()->isValidPos(getX()-1, getY()))
+            if (getWorld()->isValidPos(getX()-1, getY(), this))
             {
                 getWorld()->pushActors(getX()-1, getY(), left);
                 moveTo(getX()-1, getY());
@@ -51,7 +65,7 @@ void Avatar::moveAvatar(int directionKey)
             break;
         case right:
             setDirection(right);
-            if (getWorld()->isValidPos(getX()+1, getY()))
+            if (getWorld()->isValidPos(getX()+1, getY(), this))
             {
                 getWorld()->pushActors(getX()+1, getY(), right);
                 moveTo(getX()+1, getY());
@@ -59,7 +73,7 @@ void Avatar::moveAvatar(int directionKey)
             break;
         case up:
             setDirection(up);
-            if (getWorld()->isValidPos(getX(), getY()+1))
+            if (getWorld()->isValidPos(getX(), getY()+1, this))
             {
                 getWorld()->pushActors(getX(), getY()+1, up);
                 moveTo(getX(), getY()+1);
@@ -67,7 +81,7 @@ void Avatar::moveAvatar(int directionKey)
             break;
         case down:
             setDirection(down);
-            if (getWorld()->isValidPos(getX(), getY()-1))
+            if (getWorld()->isValidPos(getX(), getY()-1, this))
             {
                 getWorld()->pushActors(getX(), getY()-1, down);
                 moveTo(getX(), getY()-1);
@@ -175,22 +189,21 @@ void Pea::doSomething()
 }
 bool Pea::step2()
 {
-
-    Actor* target = getWorld()->getActor(getX(), getY(), this);
+    Actor* target = getWorld()->getTarget(getX(), getY(), this);
     if (target != nullptr && target->canTakeDamage())
     {
 
-        target->updateHealth(-2);
+        target->damage(-2);
         setHealth(0);
         return false;
     }
-    else if (target != nullptr && !(target->canTakeDamage()) && target->canAvatarOverlap() == 0 && target->blocks() && target != this)
+    Actor* wall = getWorld()->getActor(getX(), getY(), this);
+    if (wall != nullptr && !(wall->canTakeDamage()) && wall->canAvatarOverlap() == 0  && wall->blocks() && wall != this)
     {
         setHealth(0);
         return false;
         // TODO ACCOUNT FOR OVERLAP OF ROBOT AND FACTORY
     }
-
     return true;
 }
 
@@ -347,4 +360,84 @@ void Exit::exposeExit()
     makeVisible();
     m_exitExposed = true;
     getWorld()->playSound(SOUND_REVEAL_EXIT);
+}
+// ROBOT
+Robot::Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world) : Actor (imageID, startX, startY, startDir, world), m_score(score)
+{
+    setVisible(true);
+    setHealth(hitPoints);
+}
+
+// RAGEBOT
+RageBot::RageBot(int startX, int startY, int startDir, StudentWorld* world) : Robot(IID_RAGEBOT, startX, startY, startDir, 10, 100, world), m_ticks(0)
+{}
+
+void RageBot::doSomething()
+{
+    int ticks = (28 - getWorld()->getLevel()) / 4; // levelNumber is the current
+     // level number (0, 1, 2, etc.)
+    if (ticks < 3)
+     ticks = 3;
+    if (!Alive())
+        return;
+    m_ticks++;
+    if (m_ticks % ticks != 0)
+        return;
+    int dx = 0;
+    int dy = 0;
+    int direction = getDirection();
+    switch (direction)
+    {
+        case right:
+            dx = 1;
+            break;
+        case left:
+            dx = -1;
+            break;
+        case up:
+            dy = 1;
+            break;
+        case down:
+            dy = -1;
+            break;
+    }
+    if (getWorld()->existsClearShotToPlayer(getX(), getY(), dx, dy))
+    {
+        switch (direction)
+        {
+            case right:
+                getWorld()->addActor(new Pea(IID_PEA, getX()+1, getY(), right, getWorld()));
+                getWorld()->playSound(SOUND_ENEMY_FIRE);
+                break;
+            case left:
+                getWorld()->addActor(new Pea(IID_PEA, getX()-1, getY(), left, getWorld()));
+                getWorld()->playSound(SOUND_ENEMY_FIRE);
+                break;
+            case up:
+                getWorld()->addActor(new Pea(IID_PEA, getX(), getY()+1, up, getWorld()));
+                getWorld()->playSound(SOUND_ENEMY_FIRE);
+                break;
+            case down:
+                getWorld()->addActor(new Pea(IID_PEA, getX(), getY()-1, down, getWorld()));
+                getWorld()->playSound(SOUND_ENEMY_FIRE);
+                break;
+            default:
+                return;
+        }
+        return;
+    }
+    moveActor(getX(), getY(), dx, dy);
+}
+void Robot::damage(int damageAmt)
+{
+    updateHealth(-2);
+    if (Alive())
+        getWorld()->playSound(SOUND_ROBOT_IMPACT);
+    else
+    {
+        setHealth(0);
+        getWorld()->playSound(SOUND_ROBOT_DIE);
+        getWorld()->increaseScore(m_score);
+    }
+
 }

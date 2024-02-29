@@ -90,6 +90,12 @@ int StudentWorld::init()
                     case Level::exit:
                         addActor(new Exit(IID_EXIT, x, y, this));
                         break;
+                    case Level::vert_ragebot:
+                        addActor(new RageBot(x, y, Actor::down, this));
+                        break;
+                    case Level::horiz_ragebot:
+                        addActor(new RageBot(x, y, Actor::right, this));
+                        break;
                     default:
                         break;
                 }
@@ -159,7 +165,7 @@ StudentWorld::~StudentWorld()
     cleanUp();
 }
 
-bool StudentWorld::isValidPos(double x, double y)
+bool StudentWorld::isValidPos(double x, double y, Actor* p)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
@@ -169,6 +175,8 @@ bool StudentWorld::isValidPos(double x, double y)
                 return false;
             if ((*it)->canAvatarOverlap() == 1)
                 return true;
+            if ((*it)->canAvatarOverlap() == 2 && !p->canPushMarbles())
+                return false;
             if ((*it)->canAvatarOverlap() == 2)
             {
                 int direction = m_avatar->getDirection();
@@ -229,6 +237,17 @@ Actor* StudentWorld::getActor(double x, double y, Actor* p)
     }
     return nullptr;
 }
+Actor* StudentWorld::getTarget(double x, double y, Actor* p)
+{
+    for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
+    {
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it) != p && (*it)->canTakeDamage())
+            return *it;
+    }
+    if (getAvatar()->getX() == x && getAvatar()->getY() == y)
+        return getAvatar();
+    return nullptr;
+}
 
 void StudentWorld::removeDeadGameObjects()
 {
@@ -258,4 +277,24 @@ void StudentWorld::updateDisplayText()
     setGameStatText(oss.str());
 }
 
+
+bool StudentWorld::existsClearShotToPlayer(int x, int y, int dx, int dy)
+{
+    int localX = x;
+    int localY = y;
+    int AvatarX = getAvatar()->getX();
+    int AvatarY = getAvatar()->getY();
+    while (!(localX == AvatarX && localY == AvatarY))
+    {
+
+        for (auto it = m_actors.begin(); it != m_actors.end(); it++)
+        {
+            if ((*it)->getX() == localX && (*it)->getY() == localY && ((*it)->blocks() || (*it)->canAvatarOverlap() == 2))
+                return false;
+        }
+        localX += dx;
+        localY += dy;
+    }
+    return true;
+}
 
