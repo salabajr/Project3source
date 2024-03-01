@@ -58,6 +58,7 @@ public:
     virtual bool canPushMarbles() const {return true;}
     int getAmmo() {return numPeas;}
     void addAmmo(int amount) {numPeas += amount;}
+    virtual void damage(int damageAmt);
 private:
     void fire(int direction, double x, double y);
     int numPeas;
@@ -130,6 +131,7 @@ public:
     void doSomething();
     bool step2();
 private:
+    bool firstTick;
     int m_direction;
 };
 class Exit : public Actor

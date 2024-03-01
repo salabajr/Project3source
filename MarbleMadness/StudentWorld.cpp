@@ -20,6 +20,7 @@ StudentWorld::StudentWorld(string assetPath)
     m_avatar = nullptr;
     m_actors.clear();
     m_levelDone = false;
+    m_crystals = 0;
     
 }
 
@@ -123,6 +124,7 @@ int StudentWorld::move()
         
         if (!m_avatar->Alive())
         {
+            playSound(SOUND_PLAYER_DIE);
             decLives();
             return GWSTATUS_PLAYER_DIED;
         }
@@ -141,7 +143,11 @@ int StudentWorld::move()
     if (m_bonus > 0)
         m_bonus--;
     if (!m_avatar->Alive())
-        return GWSTATUS_PLAYER_DIED;;
+    {
+        playSound(SOUND_PLAYER_DIE);
+        decLives();
+        return GWSTATUS_PLAYER_DIED;
+    }
 
     // This code is here merely to allow the game to build, run, and terminate after you type q
     //setGameStatText("Game will end when you type q");
@@ -151,6 +157,7 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
+    m_crystals = 0;
     delete m_avatar;
     m_avatar = nullptr;
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ++it)
@@ -167,6 +174,7 @@ StudentWorld::~StudentWorld()
 
 bool StudentWorld::isValidPos(double x, double y, Actor* p)
 {
+    bool goodie = false;
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if ((*it)->getX() == x && (*it)->getY() == y)
@@ -174,7 +182,7 @@ bool StudentWorld::isValidPos(double x, double y, Actor* p)
             if ((*it)->canAvatarOverlap() == 0)
                 return false;
             if ((*it)->canAvatarOverlap() == 1)
-                return true;
+                goodie = true;
             if ((*it)->canAvatarOverlap() == 2 && !p->canPushMarbles())
                 return false;
             if ((*it)->canAvatarOverlap() == 2)
@@ -203,7 +211,6 @@ bool StudentWorld::isValidPos(double x, double y, Actor* p)
                 return false;
             }
         }
-        
     }
     return true;
 }
@@ -286,14 +293,14 @@ bool StudentWorld::existsClearShotToPlayer(int x, int y, int dx, int dy)
     int AvatarY = getAvatar()->getY();
     while (!(localX == AvatarX && localY == AvatarY))
     {
-
-        for (auto it = m_actors.begin(); it != m_actors.end(); it++)
-        {
-            if ((*it)->getX() == localX && (*it)->getY() == localY && ((*it)->blocks() || (*it)->canAvatarOverlap() == 2))
-                return false;
-        }
         localX += dx;
         localY += dy;
+        for (auto it = m_actors.begin(); it != m_actors.end(); it++)
+        {
+            if ((*it)->getX() == localX && (*it)->getY() == localY && ((*it)->blocks() || (*it)->canAvatarOverlap() == 2 || (*it)->canTakeDamage()))
+                return false;
+        }
+
     }
     return true;
 }

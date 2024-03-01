@@ -149,17 +149,28 @@ void Avatar::fire(int direction, double x, double y)
     }
     numPeas--;
 }
+void Avatar::damage(int damageAmt)
+{
+    updateHealth(-2);
+    if (Alive())
+        getWorld()->playSound(SOUND_PLAYER_IMPACT);
+}
 // PEA
 Pea::Pea(int imageID, double startX, double startY, int direction, StudentWorld* world): Actor(IID_PEA, startX, startY, -1, world), m_direction(direction) {
     setVisible(true);
     setHealth(100);
+    firstTick = true;
 }
 
 void Pea::doSomething()
 {
     if (!Alive())
         return;
-
+    if (firstTick == true)
+    {
+        firstTick = false;
+        return;
+    }
     // TODO ACCOUNT FOR OVERLAP OF ROBOT AND FACTORY
     if (step2())
     {
