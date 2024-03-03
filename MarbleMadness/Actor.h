@@ -46,9 +46,9 @@ public:
     virtual bool swallows() const {return false;}
     
     virtual void damage(int damageAmt);
-    
+    virtual void setStolen(bool status) {return;}
     // Can a thiefbot pick up this actor?
-    virtual int stealable() const {return 0;} // 0 means not stealable, goodies are > 1
+    virtual bool stealable() const {return false;}
     
     // is a ThiefBot?
     virtual bool countsInFactoryCensus()  {return false;}
@@ -116,9 +116,12 @@ class Item : public Actor
 public:
     Item(int imageID, double startX, double startY, StudentWorld* world, int increasePoints);
     virtual int canAvatarOverlap() const {return 1;}
+    virtual bool stealable() const {return !stolen;}
+    virtual void setStolen(bool status);
 protected:
     bool updateItem();
 private:
+    bool stolen;
     int pointBonus;
 };
 
@@ -127,12 +130,12 @@ class Crystal : public Item
 public:
     Crystal(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
     void doSomething();
+    virtual bool stealable() const {return false;}
 };
 class extraLife : public Item
 {
 public:
     extraLife(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() const {return 1;}
     virtual void doSomething();
 };
 
@@ -140,7 +143,6 @@ class restoreHealth : public Item
 {
 public:
     restoreHealth(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() const {return 2;}
     virtual void doSomething();
 };
 
@@ -148,7 +150,6 @@ class Ammo : public Item
 {
 public:
     Ammo(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() const {return 3;}
     void doSomething();
 };
 
@@ -210,7 +211,7 @@ protected:
     virtual void doDifferentSomething();
 private:
     int distanceBeforeTurning;
-    int memory;
+    Actor* goodieHeld;
 };
 
 class MeanThiefBot : public ThiefBot

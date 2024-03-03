@@ -233,10 +233,15 @@ void Pit::doSomething()
     }
 }
 // Item
-Item::Item(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Actor(imageID, startX, startY, -1, world), pointBonus(increasePoints)
+Item::Item(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Actor(imageID, startX, startY, -1, world), pointBonus(increasePoints), stolen(false)
 {
     setVisible(true);
     setHealth(100);
+}
+
+void Item::setStolen(bool status)
+{
+    stolen = status;
 }
 bool Item::updateItem()
 {
@@ -371,7 +376,7 @@ void Robot::damage(int damageAmt)
 
 // THIEFBOT
 
-ThiefBot::ThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world) : Robot(imageID, startX, startY, right, health, points, world), memory(0)
+ThiefBot::ThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world) : Robot(imageID, startX, startY, right, health, points, world), goodieHeld(nullptr)
 { // random distance 1-6 before turning
     distanceBeforeTurning = randInt(1, 6);
 }
@@ -379,14 +384,15 @@ ThiefBot::ThiefBot(int imageID, int startX, int startY, int health, int points, 
 void ThiefBot::doDifferentSomething()
 { // grabs a goodie if it shares the same position
     Actor *p = getWorld()->getActor(getX(), getY(), this);
-    if (p != nullptr && p->stealable() > 0 && memory == 0) //goodie and isnt holding another goodie
+    if (p != nullptr && p->stealable() > 0 && goodieHeld == nullptr) //goodie and isnt holding another goodie
     {
         int pickup = randInt(1, 10);
         if (pickup == 1)
         { // 1 in 10 chance of picking up the goodie
-            memory = p->stealable(); // remember the goodie
-            p->setHealth(0); // remove the goodie from display
-            p = nullptr;
+            goodieHeld = p; // remember the goodie
+            p->setVisible(false);
+            p->setStolen(true);
+            // remove the goodie from display
             getWorld()->playSound(SOUND_ROBOT_MUNCH);
             return;
         }
@@ -442,19 +448,12 @@ void ThiefBot::damage(int damageAmt)
     Robot::damage(damageAmt);
     if (!Alive())
     {
-        if (memory > 1)
-           switch (memory)
-           {
-               case 1:
-                   getWorld()->addActor(new extraLife(IID_EXTRA_LIFE, getX(), getY(), getWorld(), 1000));
-                   break;
-               case 2:
-                   getWorld()->addActor(new restoreHealth(IID_RESTORE_HEALTH, getX(), getY(), getWorld(), 500));
-                   break;
-               case 3:
-                   getWorld()->addActor(new Ammo(IID_AMMO, getX(), getY(), getWorld(), 100));
-                   break;
-           }
+        if (goodieHeld != nullptr)
+        {
+            goodieHeld->moveTo(getX(), getY());
+            goodieHeld->makeVisible();
+            goodieHeld->setStolen(false);
+        }
     }
 }
 // MeanThiefBot
