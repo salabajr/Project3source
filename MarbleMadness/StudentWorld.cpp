@@ -1,5 +1,6 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
+#include <iomanip>
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -21,7 +22,6 @@ StudentWorld::StudentWorld(string assetPath)
     m_actors.clear();
     m_levelDone = false;
     m_crystals = 0;
-    
 }
 
 void StudentWorld::addActor(Actor* actor)
@@ -183,7 +183,6 @@ StudentWorld::~StudentWorld()
 
 bool StudentWorld::isValidPos(double x, double y, Actor* p)
 {
-    bool goodie = false;
     if (p != getAvatar())
     {
         if (getAvatar()->getX() == x && getAvatar()->getY() == y)
@@ -195,8 +194,6 @@ bool StudentWorld::isValidPos(double x, double y, Actor* p)
         {
             if ((*it)->canAvatarOverlap() == 0)
                 return false;
-            if ((*it)->canAvatarOverlap() == 1)
-                goodie = true;
             if ((*it)->canAvatarOverlap() == 2 && !p->canPushMarbles())
                 return false;
             if ((*it)->canAvatarOverlap() == 2)
@@ -232,7 +229,7 @@ bool StudentWorld::isEmpty(double x, double y)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
-        if ((*it)->getX() == x && (*it)->getY() == y && (*it)->isObstacle())
+        if ((*it)->getX() == x && (*it)->getY() == y && (*it)->swallows())
             return true;
         else if ((*it)->getX() == x && (*it)->getY() == y)
             return false;
@@ -314,7 +311,6 @@ bool StudentWorld::existsClearShotToPlayer(int x, int y, int dx, int dy)
             if ((*it)->getX() == localX && (*it)->getY() == localY && ((*it)->blocks() || (*it)->canAvatarOverlap() == 2 || (*it)->canTakeDamage()))
                 return false;
         }
-
     }
     return true;
 }

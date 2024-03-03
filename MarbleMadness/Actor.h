@@ -9,28 +9,57 @@ class StudentWorld;
 class Actor : public GraphObject
 {
 public:
-    Actor(int imageID, double startX, double startY, int dir, StudentWorld* world)
-    : GraphObject(imageID, startX, startY, dir, 1.0), m_world(world)
-    {}
+    Actor(int imageID, double startX, double startY, int dir, StudentWorld* world);
+    
+    //Is our actor still alive?
     bool Alive() const;
+    
+    //How many hitpoints does our Actor have left?
     int getHealth() const;
+    
+    // Typically use to deal damage from a pea
     virtual void updateHealth(int health);
+    
+    // Action to perform each tick
     virtual void doSomething() = 0;
-    StudentWorld* getWorld();
+    
+    // gets the Actor's world
+    StudentWorld* getWorld() const;
+    
     virtual bool canPushMarbles() const {return false;}
-    virtual int canAvatarOverlap() {return 0;} // 0 walls, bots, pits 1: goodies 2: marbles
+    
+    // 0 walls, bots, pits 1: goodies 2: marbles, describes how an Avatar interacts with another Actor
+    virtual int canAvatarOverlap() const {return 0;}
     void setHealth(int health);
+    
+    // pushing actors we can push aka marbles
     virtual void push(int direction, double X, double Y ) {return;}
-    virtual bool isObstacle() {return false;}
-    virtual bool blocks() {return false;}
-    virtual bool canTakeDamage() {return false;}
+    
+    // restricts interactions with other actors
+    virtual bool blocks() const {return false;}
+    
+    // Is this actor something that is affected by a pea?
+    virtual bool canTakeDamage() const {return false;}
     void makeVisible() {setVisible(true);}
+    
+    // Can a pit eat this actor?
+    virtual bool swallows() const {return false;}
+    
     virtual void damage(int damageAmt);
-    virtual int stealable() {return 0;} // 0 means not stealable, goodies are > 1
+    
+    // Can a thiefbot pick up this actor?
+    virtual int stealable() const {return 0;} // 0 means not stealable, goodies are > 1
+    
+    // is a ThiefBot?
     virtual bool countsInFactoryCensus()  {return false;}
 protected:
+    // only called by derived classes
     void moveActor(double x, double y, int dx, int dy);
+    
+    // shoot a pea
     void fire(int direction, double x, double y);
+    
+    // determine movement
     void setdxdy(int &x, int&y, int direction);
 private:
     int m_health;
@@ -41,9 +70,8 @@ class Wall : public Actor
 {
 public:
     Wall(int imageID, double startX, double startY, StudentWorld* world);
-    void doSomething();
-    bool blocks() {return true;}
-    //bool isObstacle() {return true;}
+    virtual void doSomething();
+    virtual bool blocks() const {return true;}
 
 private:
 
@@ -53,15 +81,15 @@ class Avatar : public Actor
 {
 public:
     Avatar(int imageID, double startX, double startY, StudentWorld* world);
-    void doSomething();
+    virtual void doSomething();
     int getAvatarDirection() {return getDirection();}
-    void moveAvatar(int direction);
-    bool canTakeDamage() {return true;}
+    virtual bool canTakeDamage() const {return true;}
     virtual bool canPushMarbles() const {return true;}
     int getAmmo() {return numPeas;}
     void addAmmo(int amount) {numPeas += amount;}
     virtual void damage(int damageAmt);
 private:
+    void moveAvatar(int direction);
     int numPeas;
 };
  
@@ -70,29 +98,26 @@ class Marble : public Actor
 public:
     Marble(int imageID, double startX, double startY, StudentWorld* world);
     void push(int direction, double X, double Y);
-    void doSomething() {return;}
-    int canAvatarOverlap() {return 2;}
-    bool canTakeDamage() {return true;}
-private:
+    virtual void doSomething() {return;}
+    virtual int canAvatarOverlap()  const {return 2;}
+    bool canTakeDamage() const {return true;}
 };
 
 class Pit : public Actor
 {
 public:
-    bool isPit(){return true;}
     Pit(int imageID, double startX, double startY, StudentWorld* world);
-    void doSomething();
-    bool isObstacle() {return true;}
-private:
+    virtual void doSomething();
+    virtual bool swallows() const {return true;}
 };
 
 class Item : public Actor
 {
 public:
     Item(int imageID, double startX, double startY, StudentWorld* world, int increasePoints);
+    virtual int canAvatarOverlap() const {return 1;}
 protected:
     bool updateItem();
-    int canAvatarOverlap() {return 1;}
 private:
     int pointBonus;
 };
@@ -107,24 +132,23 @@ class extraLife : public Item
 {
 public:
     extraLife(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() {return 1;}
-    void doSomething();
+    virtual int stealable() const {return 1;}
+    virtual void doSomething();
 };
 
 class restoreHealth : public Item
 {
 public:
     restoreHealth(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() {return 2;}
-    void doSomething();
-    
+    virtual int stealable() const {return 2;}
+    virtual void doSomething();
 };
 
 class Ammo : public Item
 {
 public:
     Ammo(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
-    virtual int stealable() {return 3;}
+    virtual int stealable() const {return 3;}
     void doSomething();
 };
 
@@ -133,22 +157,18 @@ class Pea : public Actor
 public:
     Pea (int imageID, double startX, double startY, int direction, StudentWorld* world);
     void doSomething();
-    virtual int canAvatarOverlap() {return 1;}
+    virtual int canAvatarOverlap() const {return 1;}
 private:
     bool step2();
+// This dealt with the pea skipping the first space i.e. the pea moved before appearing to the display
     bool firstTick;
     int m_direction;
 };
 class Exit : public Actor
 {
 public:
-    Exit(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
-    {
-        setHealth(1);
-        setVisible(false);
-        m_exitExposed = false;
-    }
-    int canAvatarOverlap() {return 1;}
+    Exit(int imageID, double startX, double startY, StudentWorld* world);
+    int canAvatarOverlap() const {return 1;}
     void exposeExit();
     void doSomething();
 private:
@@ -160,19 +180,12 @@ class Robot : public Actor
 public:
     Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world);
     virtual void doSomething();
-    virtual bool canTakeDamage() {return true;}
+    virtual bool canTakeDamage() const {return true;}
     virtual void damage(int damageAmt);
     virtual bool canPushMarbles() const {return false;}
-//    virtual bool blocks() {return true;}
-    //virtual bool needsClearShot() const;
-    //virtual int shootingSound() const;
-
-      // Does this robot shoot?
-    virtual bool isShootingRobot() const {return false;}
 protected:
     int getTicks() {return m_ticks;}
     void increaseTicks() {m_ticks++;}
-
 private:
     virtual void doDifferentSomething() = 0;
     int m_score;
@@ -183,8 +196,6 @@ class RageBot : public Robot
 {
 public:
     RageBot(int startX, int startY, int startDir, StudentWorld* world);
- //   virtual void doSomething();
-    virtual bool isShootingRobot() const {return true;}
 private:
     virtual void doDifferentSomething();
 };
@@ -193,7 +204,7 @@ class ThiefBot : public Robot
 {
 public:
     ThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world);
-    virtual bool countsInFactoryCensus() {return true;}
+    virtual bool countsInFactoryCensus()  {return true;}
     virtual void damage(int damageAmt);
 protected:
     virtual void doDifferentSomething();
@@ -215,7 +226,7 @@ class ThiefBotFactory : public Actor
 public:
     ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world);
     virtual void doSomething();
-    virtual bool blocks() {return true;}
+    virtual bool blocks() const {return true;}
 private:
     int factoryType;
 };
