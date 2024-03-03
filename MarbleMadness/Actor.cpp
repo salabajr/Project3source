@@ -13,7 +13,6 @@ void Actor::moveActor(double x, double y, int dx, int dy)
         setDirection(getDirection() + 180);
         return;
     }
-        
 }
 bool Actor::Alive() const
 {
@@ -156,7 +155,7 @@ void Avatar::damage(int damageAmt)
         getWorld()->playSound(SOUND_PLAYER_IMPACT);
 }
 // PEA
-Pea::Pea(int imageID, double startX, double startY, int direction, StudentWorld* world): Actor(IID_PEA, startX, startY, -1, world), m_direction(direction) {
+Pea::Pea(int imageID, double startX, double startY, int direction, StudentWorld* world): Actor(IID_PEA, startX, startY, direction, world), m_direction(direction) {
     setVisible(true);
     setHealth(100);
     firstTick = true;
@@ -195,8 +194,6 @@ void Pea::doSomething()
                 return;
         }
     }
-    
-    
 }
 bool Pea::step2()
 {
@@ -373,17 +370,13 @@ void Exit::exposeExit()
     getWorld()->playSound(SOUND_REVEAL_EXIT);
 }
 // ROBOT
-Robot::Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world) : Actor (imageID, startX, startY, startDir, world), m_score(score)
+Robot::Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world) : Actor (imageID, startX, startY, startDir, world), m_score(score), m_ticks(0)
 {
     setVisible(true);
     setHealth(hitPoints);
 }
 
-// RAGEBOT
-RageBot::RageBot(int startX, int startY, int startDir, StudentWorld* world) : Robot(IID_RAGEBOT, startX, startY, startDir, 10, 100, world), m_ticks(0)
-{}
-
-void RageBot::doSomething()
+void Robot::doSomething()
 {
     int ticks = (28 - getWorld()->getLevel()) / 4; // levelNumber is the current
      // level number (0, 1, 2, etc.)
@@ -391,12 +384,14 @@ void RageBot::doSomething()
      ticks = 3;
     if (!Alive())
         return;
-    m_ticks++;
-    if (m_ticks % ticks != 0)
+    increaseTicks();
+    if (getTicks() % ticks != 0)
         return;
-    int dx = 0;
-    int dy = 0;
-    int direction = getDirection();
+    doDifferentSomething();
+}
+
+void Robot::setdxdy(int &dx, int&dy, int direction)
+{
     switch (direction)
     {
         case right:
@@ -412,6 +407,18 @@ void RageBot::doSomething()
             dy = -1;
             break;
     }
+}
+
+// RAGEBOT
+RageBot::RageBot(int startX, int startY, int startDir, StudentWorld* world) : Robot(IID_RAGEBOT, startX, startY, startDir, 10, 100, world)
+{}
+
+void RageBot::doDifferentSomething()
+{
+    int dx = 0;
+    int dy = 0;
+    int direction = getDirection();
+    setdxdy(dx, dy, direction);
     if (getWorld()->existsClearShotToPlayer(getX(), getY(), dx, dy))
     {
         switch (direction)
@@ -443,12 +450,159 @@ void Robot::damage(int damageAmt)
 {
     updateHealth(-2);
     if (Alive())
+    {
         getWorld()->playSound(SOUND_ROBOT_IMPACT);
+        return;
+    }
     else
     {
         setHealth(0);
         getWorld()->playSound(SOUND_ROBOT_DIE);
         getWorld()->increaseScore(m_score);
     }
+}
 
+// THIEFBOT
+
+ThiefBot::ThiefBot(int startX, int startY, StudentWorld* world) : Robot(IID_THIEFBOT, startX, startY, right, 5, 10, world), memory(0)
+{
+    distanceBeforeTurning = randInt(1, 6);
+}
+
+void ThiefBot::doDifferentSomething()
+{
+    Actor *p = getWorld()->getActor(getX(),getY(), this);
+    if (p != nullptr && p->stealable() > 0 && memory == 0) //goodie
+    {
+        int pickup = randInt(1, 1);
+        if (pickup == 1)
+        {
+            memory = p->stealable();
+            p->setHealth(0);
+            p = nullptr;
+            getWorld()->playSound(SOUND_ROBOT_MUNCH);
+            return;
+        }
+    }
+    int dx = 0;
+    int dy = 0;
+    int direction = getDirection();
+    setdxdy(dx, dy, direction);
+    if (distanceBeforeTurning > 0 && getWorld()->isValidPos(getX()+dx, getY()+dy, this))
+    {
+        moveTo(getX()+dx, getY()+dy);
+        distanceBeforeTurning--;
+        return;
+    }
+    else
+    {
+        distanceBeforeTurning = randInt(1, 6);
+        int randD = randInt(1, 4);
+        switch (randD) {
+            case 1:
+                randD = up;
+                break;
+            case 2:
+                randD = down;
+                break;
+            case 3:
+                randD = left;
+                break;
+            case 4:
+                randD = right;
+                break;
+            default:
+                break;
+        }
+        dx = 0;
+        dy = 0;
+        for (int i = 0; i < 4; i++)
+        {
+           setdxdy(dx, dy, randD);
+           if (getWorld()->isValidPos(getX()+dx, getY()+dy, this))
+           {
+               setDirection(randD);
+               return;
+           }
+            randD += 90;
+        }
+        randD += 90;
+        return;
+    }
+}
+
+void ThiefBot::damage(int damageAmt)
+{
+    Robot::damage(damageAmt);
+    if (!Alive())
+    {
+        if (memory > 1)
+           switch (memory)
+           {
+               case 1:
+                   getWorld()->addActor(new extraLife(IID_EXTRA_LIFE, getX(), getY(), getWorld(), 1000));
+                   break;
+               case 2:
+                   getWorld()->addActor(new restoreHealth(IID_RESTORE_HEALTH, getX(), getY(), getWorld(), 500));
+                   break;
+               case 3:
+                   getWorld()->addActor(new Ammo(IID_AMMO, getX(), getY(), getWorld(), 100));
+                   break;
+           }
+    }
+}
+
+// ThiefBot Factory
+ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world) :  Actor(imageID, startX, startY, -1, world), factoryType(type)
+{    
+    setVisible(true);
+    setHealth(999);
+}
+
+void ThiefBotFactory::doSomething()
+{
+    int count = 0;
+    
+    double minX = getX()-3;
+    if (minX < 0)
+        minX = 0;
+    
+    double maxX = getX()+3;
+    if (maxX >= VIEW_WIDTH)
+        maxX = VIEW_WIDTH-1;
+    
+    double minY = getY()-3;
+    if (minY < 0)
+        minY = 0;
+    
+    double maxY = getY()+3;
+    if (maxY >= VIEW_HEIGHT)
+        maxY = VIEW_HEIGHT-1;
+    
+    for (double x = minX; x <= maxX; x++)
+    {
+        for (double y = minY; y <= maxY; y++)
+        {
+            Actor* target = getWorld()->getActor(x, y, this);
+            if (target != nullptr && target->countsInFactoryCensus())
+            {
+                count++;
+            }
+        }
+    }
+    if (count < 3 && getWorld()->getTarget(getX(), getY(), this) == nullptr)
+    {
+        int rand = randInt(1, 50);
+        if (rand == 1)
+        {
+            if (factoryType == 0)
+            {
+                getWorld()->addActor(new ThiefBot(getX(), getY(),getWorld()));
+                getWorld()->playSound(SOUND_ROBOT_BORN);
+                return;
+            }
+//            else if (factoryType == 1)
+//                getWorld()->addActor(new MeanThiefBot(getX(), getX(), getWorld()));
+        }
+    }
 }

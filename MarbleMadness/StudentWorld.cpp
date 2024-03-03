@@ -97,6 +97,9 @@ int StudentWorld::init()
                     case Level::horiz_ragebot:
                         addActor(new RageBot(x, y, Actor::right, this));
                         break;
+                    case Level::thiefbot_factory:
+                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, 0, this));
+                        break;
                     default:
                         break;
                 }
@@ -175,6 +178,11 @@ StudentWorld::~StudentWorld()
 bool StudentWorld::isValidPos(double x, double y, Actor* p)
 {
     bool goodie = false;
+    if (p != getAvatar())
+    {
+        if (getAvatar()->getX() == x && getAvatar()->getY() == y)
+            return false;
+    }
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if ((*it)->getX() == x && (*it)->getY() == y)

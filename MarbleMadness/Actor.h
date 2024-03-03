@@ -26,6 +26,8 @@ public:
     virtual bool canTakeDamage() {return false;}
     void makeVisible() {setVisible(true);}
     virtual void damage(int damageAmt);
+    virtual int stealable() {return 0;} // 0 means not stealable, goodies are > 1
+    virtual bool countsInFactoryCensus()  {return false;}
 protected:
     void moveActor(double x, double y, int dx, int dy);
     
@@ -106,6 +108,7 @@ class extraLife : public Item
 {
 public:
     extraLife(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
+    virtual int stealable() {return 1;}
     void doSomething();
 };
 
@@ -113,6 +116,7 @@ class restoreHealth : public Item
 {
 public:
     restoreHealth(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
+    virtual int stealable() {return 2;}
     void doSomething();
     
 };
@@ -121,6 +125,7 @@ class Ammo : public Item
 {
 public:
     Ammo(int imageID, double startX, double startY, StudentWorld* world, int increasePoints) : Item(imageID, startX, startY, world, increasePoints) {}
+    virtual int stealable() {return 3;}
     void doSomething();
 };
 
@@ -129,8 +134,9 @@ class Pea : public Actor
 public:
     Pea (int imageID, double startX, double startY, int direction, StudentWorld* world);
     void doSomething();
-    bool step2();
+    virtual int canAvatarOverlap() {return 1;}
 private:
+    bool step2();
     bool firstTick;
     int m_direction;
 };
@@ -154,7 +160,7 @@ class Robot : public Actor
 {
 public:
     Robot(int imageID, double startX, double startY, int startDir, int hitPoints, int score, StudentWorld* world);
-    //virtual void doSomething() const;
+    virtual void doSomething();
     virtual bool canTakeDamage() {return true;}
     virtual void damage(int damageAmt);
     virtual bool canPushMarbles() const {return false;}
@@ -164,19 +170,46 @@ public:
 
       // Does this robot shoot?
     virtual bool isShootingRobot() const {return false;}
+protected:
+    int getTicks() {return m_ticks;}
+    void increaseTicks() {m_ticks++;}
+    void setdxdy(int &x, int&y, int direction);
 private:
+    virtual void doDifferentSomething() = 0;
     int m_score;
+    int m_ticks;
 };
 
 class RageBot : public Robot
 {
 public:
     RageBot(int startX, int startY, int startDir, StudentWorld* world);
-    virtual void doSomething();
+ //   virtual void doSomething();
     virtual bool isShootingRobot() const {return true;}
 private:
-    int m_ticks;
+    virtual void doDifferentSomething();
 };
 
+class ThiefBot : public Robot
+{
+public:
+    ThiefBot(int startX, int startY, StudentWorld* world);
+    virtual bool countsInFactoryCensus() {return true;}
+    virtual void damage(int damageAmt);
+private:
+    virtual void doDifferentSomething();
+    int distanceBeforeTurning;
+    int memory;
+};
+
+class ThiefBotFactory : public Actor
+{
+public:
+    ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world);
+    virtual void doSomething();
+    virtual bool blocks() {return true;}
+private:
+    int factoryType;
+};
 #endif // ACTOR_H_
 
