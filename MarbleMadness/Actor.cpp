@@ -432,12 +432,12 @@ void ThiefBot::doDifferentSomething()
         {
            setdxdy(dx, dy, randD);
            if (getWorld()->isValidPos(getX()+dx, getY()+dy, this))
-           {
+           { // the new direction allows to bot to move
                setDirection(randD);
                return;
-           }
+           } // try a new direction;
             randD += 90;
-        }
+        } // return to original direction
         randD += 90;
         return;
     }
@@ -449,7 +449,8 @@ void ThiefBot::damage(int damageAmt)
     if (!Alive())
     {
         if (goodieHeld != nullptr)
-        {
+        { // we are a carrying a goodie
+            // move the goodie to where the thiefbot died
             goodieHeld->moveTo(getX(), getY());
             goodieHeld->makeVisible();
             goodieHeld->setStolen(false);
@@ -485,8 +486,8 @@ void MeanThiefBot::doSomething()
 }
 
 // ThiefBot Factory
-ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world) :  Actor(imageID, startX, startY, -1, world), factoryType(type)
-{    
+ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, ProductType type, StudentWorld* world) :  Actor(imageID, startX, startY, -1, world), factoryType(type)
+{
     setVisible(true);
     setHealth(999);
 }
@@ -494,7 +495,7 @@ ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, int 
 void ThiefBotFactory::doSomething()
 {
     int count = 0;
-    
+    // accounts for a minimum x or y out of bounds
     double minX = getX()-3;
     if (minX < 0)
         minX = 0;
@@ -512,28 +513,28 @@ void ThiefBotFactory::doSomething()
         maxY = VIEW_HEIGHT-1;
     
     for (double x = minX; x <= maxX; x++)
-    {
+    { // check all squares that are within the specified range
         for (double y = minY; y <= maxY; y++)
         {
             Actor* target = getWorld()->getTarget(x, y, this);
             if (target != nullptr && target->countsInFactoryCensus())
-            {
+            { // the target is a thiefbot and counts in our census
                 count++;
             }
         }
     }
     if (count < 3 && getWorld()->getTarget(getX(), getY(), this) == nullptr)
-    {
+    { // 1 in 50 chance of the factory creating a new thiefbot
         int rand = randInt(1, 50);
         if (rand == 1)
-        {
-            if (factoryType == 0)
+        { // Creating the new bots, depends on the type of factory
+            if (factoryType == REGULAR)
             {
                 getWorld()->addActor(new ThiefBot(IID_THIEFBOT, getX(), getY(), 5, 10, getWorld()));
                 getWorld()->playSound(SOUND_ROBOT_BORN);
                 return;
             }
-            else if (factoryType == 1)
+            else if (factoryType == MEAN)
             {
                 getWorld()->addActor(new MeanThiefBot(IID_MEAN_THIEFBOT, getX(), getY(), 8, 20, getWorld()));
                 getWorld()->playSound(SOUND_ROBOT_BORN);

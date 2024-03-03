@@ -28,7 +28,7 @@ public:
     
     virtual bool canPushMarbles() const {return false;}
     
-    // 0 walls, bots, pits 1: goodies 2: marbles, describes how an Avatar interacts with another Actor
+    // 0 player cant cross  1: player can pass through in all cases 2: player can pass through sometimes
     virtual int canAvatarOverlap() const {return 0;}
     void setHealth(int health);
     
@@ -116,6 +116,7 @@ class Item : public Actor
 public:
     Item(int imageID, double startX, double startY, StudentWorld* world, int increasePoints);
     virtual int canAvatarOverlap() const {return 1;}
+    // only goodies are stealable and it depends on if its already stolen!
     virtual bool stealable() const {return !stolen;}
     virtual void setStolen(bool status);
 protected:
@@ -225,11 +226,12 @@ private:
 class ThiefBotFactory : public Actor
 {
 public:
-    ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world);
+    enum ProductType { REGULAR, MEAN };
+    ThiefBotFactory(int imageID, double startX, double startY, ProductType type, StudentWorld* world);
     virtual void doSomething();
     virtual bool blocks() const {return true;}
 private:
-    int factoryType;
+    ProductType factoryType;
 };
 #endif // ACTOR_H_
 

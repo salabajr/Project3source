@@ -42,14 +42,10 @@ int StudentWorld::init()
     char lvlStr[3];
     snprintf(lvlStr, 3, "%02d", lvl);
     string level = "level" + (string) lvlStr + ".txt";
-//    if (getLevel() < 10)
-//        level = "level0" + to_string(getLevel()) + ".txt";
-//    else if (getLevel() >= 10)
-//        level = "level" + to_string(getLevel()) + ".txt";
     Level::LoadResult result = lev.loadLevel(level);
     if (result == Level::load_fail_file_not_found)
     {
-        cerr << "Could not find level00.txt data file\n";
+        cerr << "Could not find leveltxt data file\n";
         return GWSTATUS_LEVEL_ERROR;
     }
     else if (result == Level::load_fail_bad_format)
@@ -101,10 +97,10 @@ int StudentWorld::init()
                         addActor(new RageBot(x, y, Actor::right, this));
                         break;
                     case Level::thiefbot_factory:
-                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, 0, this));
+                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, ThiefBotFactory::REGULAR, this));
                         break;
                     case Level::mean_thiefbot_factory:
-                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, 1, this));
+                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, ThiefBotFactory::MEAN, this));
                         break;
                     default:
                         break;
@@ -191,13 +187,14 @@ bool StudentWorld::isValidPos(double x, double y, Actor* p)
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if ((*it)->getX() == x && (*it)->getY() == y)
-        {
+        { // accounts for the different behaviors
+            // the avatar cannot cross in any case
             if ((*it)->canAvatarOverlap() == 0)
                 return false;
             if ((*it)->canAvatarOverlap() == 2 && !p->canPushMarbles())
                 return false;
             if ((*it)->canAvatarOverlap() == 2)
-            {
+            { // there is a marble and an avatar is trying to push it
                 int direction = m_avatar->getDirection();
                 if (direction == Actor::down)
                 {
@@ -228,7 +225,7 @@ bool StudentWorld::isValidPos(double x, double y, Actor* p)
 bool StudentWorld::isEmpty(double x, double y)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
-    {
+    { // if a marble falls into the pit at this tick, it is basically empty
         if ((*it)->getX() == x && (*it)->getY() == y && (*it)->swallows())
             return true;
         else if ((*it)->getX() == x && (*it)->getY() == y)
@@ -238,7 +235,7 @@ bool StudentWorld::isEmpty(double x, double y)
 }
 
 void StudentWorld::pushActors(double x, double y, int direction)
-{
+{ // push the marble if it can be pushed
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
     {
         if ((*it)->getX() == x && (*it)->getY() == y)
@@ -249,7 +246,7 @@ void StudentWorld::pushActors(double x, double y, int direction)
 Actor* StudentWorld::getActor(double x, double y, Actor* p)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
-    {
+    { // gets an actor at that position
         if ((*it)->getX() == x && (*it)->getY() == y && (*it) != p)
             return *it;
     }
@@ -258,7 +255,7 @@ Actor* StudentWorld::getActor(double x, double y, Actor* p)
 Actor* StudentWorld::getTarget(double x, double y, Actor* p)
 {
     for (list<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); it++)
-    {
+    { // gets the object that can be damaged by a pea, accounts for the case where a player/bot overlaps with a goodie or factory
         if ((*it)->getX() == x && (*it)->getY() == y && (*it) != p && (*it)->canTakeDamage())
             return *it;
     }
@@ -280,7 +277,6 @@ void StudentWorld::removeDeadGameObjects()
         {
             it++;
         }
-            
     }
 }
 void StudentWorld::updateDisplayText()
@@ -295,19 +291,18 @@ void StudentWorld::updateDisplayText()
     setGameStatText(oss.str());
 }
 
-
 bool StudentWorld::existsClearShotToPlayer(int x, int y, int dx, int dy)
-{
+{ // for shooting bots to see if theres an open line of sight of shot to the player
     int localX = x;
     int localY = y;
     int AvatarX = getAvatar()->getX();
     int AvatarY = getAvatar()->getY();
     while (!(localX == AvatarX && localY == AvatarY))
-    {
+    { // // start at the space in front of the shooter
         localX += dx;
         localY += dy;
         for (auto it = m_actors.begin(); it != m_actors.end(); it++)
-        {
+        { // check all actors to see if it shares this location and blocks the pea
             if ((*it)->getX() == localX && (*it)->getY() == localY && ((*it)->blocks() || (*it)->canAvatarOverlap() == 2 || (*it)->canTakeDamage()))
                 return false;
         }
