@@ -26,7 +26,10 @@ StudentWorld::StudentWorld(string assetPath)
 
 void StudentWorld::addActor(Actor* actor)
 {
-    m_actors.push_back(actor);  // Add the pointer to the end of the list
+    if (actor->stealable())
+        m_actors.push_front(actor);
+    else
+        m_actors.push_back(actor);  // Add the pointer to the end of the list
 }
 
 
@@ -99,6 +102,9 @@ int StudentWorld::init()
                         break;
                     case Level::thiefbot_factory:
                         addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, 0, this));
+                        break;
+                    case Level::mean_thiefbot_factory:
+                        addActor(new ThiefBotFactory(IID_ROBOT_FACTORY, x, y, 1, this));
                         break;
                     default:
                         break;

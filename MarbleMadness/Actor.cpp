@@ -41,8 +41,14 @@ StudentWorld* Actor::getWorld()
     return m_world;
 }
 
-// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
+void Actor::fire(int direction, double x, double y)
+{
+    int dx = 0, dy = 0;
+    setdxdy(dx, dy, direction);
+    getWorld()->addActor(new Pea(IID_PEA, x+dx, y+dy, direction, getWorld()));
+}
 
+// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
 // AVATAR
 Avatar::Avatar(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, 0, world)
@@ -53,41 +59,14 @@ Avatar::Avatar(int imageID, double startX, double startY, StudentWorld* world) :
 }
 void Avatar::moveAvatar(int directionKey)
 {
-    switch (directionKey) {
-        case left:
-            setDirection(left);
-            if (getWorld()->isValidPos(getX()-1, getY(), this))
-            {
-                getWorld()->pushActors(getX()-1, getY(), left);
-                moveTo(getX()-1, getY());
-            }
-            break;
-        case right:
-            setDirection(right);
-            if (getWorld()->isValidPos(getX()+1, getY(), this))
-            {
-                getWorld()->pushActors(getX()+1, getY(), right);
-                moveTo(getX()+1, getY());
-            }
-            break;
-        case up:
-            setDirection(up);
-            if (getWorld()->isValidPos(getX(), getY()+1, this))
-            {
-                getWorld()->pushActors(getX(), getY()+1, up);
-                moveTo(getX(), getY()+1);
-            }
-            break;
-        case down:
-            setDirection(down);
-            if (getWorld()->isValidPos(getX(), getY()-1, this))
-            {
-                getWorld()->pushActors(getX(), getY()-1, down);
-                moveTo(getX(), getY()-1);
-            }
-            break;
-        default:
-            break;
+    int dx = 0;
+    int dy = 0;
+    Actor::setdxdy(dx, dy, directionKey);
+    setDirection(directionKey);
+    if (getWorld()->isValidPos(getX()+dx, getY()+dy, this))
+    {
+        getWorld()->pushActors(getX()+dx, getY()+dy, directionKey);
+        moveTo(getX()+dx, getY()+dy);
     }
 }
 void Avatar::doSomething()
@@ -112,42 +91,22 @@ void Avatar::doSomething()
                 break;
             case KEY_PRESS_SPACE:
                 if (numPeas > 0)
-                    fire(getDirection(), getX(), getY());
+                {
+                    Actor::fire(getDirection(), getX(), getY());
+                    getWorld()->playSound(SOUND_PLAYER_FIRE);
+                    numPeas--;
+                }
                 break;
             case KEY_PRESS_ESCAPE:
                 setHealth(0);
                 break;
             default:
-                moveAvatar(ch);
+                //moveAvatar(ch);
                 break;
         }
     }
 }
-void Avatar::fire(int direction, double x, double y)
-{
-    switch (direction)
-    {
-        case right:
-            getWorld()->addActor(new Pea(IID_PEA, x+1, y, right, getWorld()));
-            getWorld()->playSound(SOUND_PLAYER_FIRE);
-            break;
-        case left:
-            getWorld()->addActor(new Pea(IID_PEA, x-1, y, left, getWorld()));
-            getWorld()->playSound(SOUND_PLAYER_FIRE);
-            break;
-        case up:
-            getWorld()->addActor(new Pea(IID_PEA, x, y+1, up, getWorld()));
-            getWorld()->playSound(SOUND_PLAYER_FIRE);
-            break;
-        case down:
-            getWorld()->addActor(new Pea(IID_PEA, x, y-1, down, getWorld()));
-            getWorld()->playSound(SOUND_PLAYER_FIRE);
-            break;
-        default:
-            return;
-    }
-    numPeas--;
-}
+
 void Avatar::damage(int damageAmt)
 {
     updateHealth(-2);
@@ -173,26 +132,11 @@ void Pea::doSomething()
     // TODO ACCOUNT FOR OVERLAP OF ROBOT AND FACTORY
     if (step2())
     {
-        switch (m_direction) {
-            case right:
-                moveTo(getX()+1, getY());
-                step2();
-                break;
-            case left:
-                moveTo(getX()-1, getY());
-                step2();
-                break;
-            case up:
-                moveTo(getX(), getY()+1);
-                step2();
-                break;
-            case down:
-                moveTo(getX(), getY()-1);
-                step2();
-                break;
-            default:
-                return;
-        }
+        int dx = 0, dy = 0;
+        setdxdy(dx, dy, m_direction);
+        moveTo(getX()+dx, getY()+dy);
+        step2();
+        return;
     }
 }
 bool Pea::step2()
@@ -236,41 +180,14 @@ Marble::Marble(int imageID, double startX, double startY, StudentWorld* world) :
 
 void Marble::push(int direction, double X, double Y)
 {
-    switch (direction) {
-        case right:
-            if (getWorld()->isEmpty(X+1, Y))
-            {
-                moveTo(X+1, Y);
-                return;
-            }
-            break;
-        case left:
-            if (getWorld()->isEmpty(X-1, Y))
-            {
-                moveTo(X-1, Y);
-                return;
-            }
-            break;
-        case up:
-            if (getWorld()->isEmpty(X, Y+1))
-            {
-                moveTo(X, Y+1);
-                return;
-            }
-            break;
-        case down:
-            if (getWorld()->isEmpty(X, Y-1))
-            {
-                moveTo(X, Y-1);
-                return;
-            }
-            break;
-        default:
-            break;
+    int dx = 0, dy = 0;
+    setdxdy(dx, dy, direction);
+    if (getWorld()->isEmpty(X+dx, Y+dy))
+    {
+        moveTo(X+dx, Y+dy);
+        return;
     }
-    return;
 }
-
 
 // PIT
 Pit::Pit(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
@@ -290,7 +207,6 @@ void Pit::doSomething()
         p->setHealth(0);
         p = nullptr;
     }
-        
 }
 
 // Item
@@ -390,21 +306,25 @@ void Robot::doSomething()
     doDifferentSomething();
 }
 
-void Robot::setdxdy(int &dx, int&dy, int direction)
+void Actor::setdxdy(int &dx, int&dy, int direction)
 {
     switch (direction)
     {
         case right:
             dx = 1;
+            dy = 0;
             break;
         case left:
             dx = -1;
+            dy = 0;
             break;
         case up:
             dy = 1;
+            dx = 0;
             break;
         case down:
             dy = -1;
+            dx = 0;
             break;
     }
 }
@@ -421,31 +341,13 @@ void RageBot::doDifferentSomething()
     setdxdy(dx, dy, direction);
     if (getWorld()->existsClearShotToPlayer(getX(), getY(), dx, dy))
     {
-        switch (direction)
-        {
-            case right:
-                getWorld()->addActor(new Pea(IID_PEA, getX()+1, getY(), right, getWorld()));
-                getWorld()->playSound(SOUND_ENEMY_FIRE);
-                break;
-            case left:
-                getWorld()->addActor(new Pea(IID_PEA, getX()-1, getY(), left, getWorld()));
-                getWorld()->playSound(SOUND_ENEMY_FIRE);
-                break;
-            case up:
-                getWorld()->addActor(new Pea(IID_PEA, getX(), getY()+1, up, getWorld()));
-                getWorld()->playSound(SOUND_ENEMY_FIRE);
-                break;
-            case down:
-                getWorld()->addActor(new Pea(IID_PEA, getX(), getY()-1, down, getWorld()));
-                getWorld()->playSound(SOUND_ENEMY_FIRE);
-                break;
-            default:
-                return;
-        }
+        Actor::fire(direction, getX(), getY());
+        getWorld()->playSound(SOUND_ENEMY_FIRE);
         return;
     }
     moveActor(getX(), getY(), dx, dy);
 }
+
 void Robot::damage(int damageAmt)
 {
     updateHealth(-2);
@@ -464,7 +366,7 @@ void Robot::damage(int damageAmt)
 
 // THIEFBOT
 
-ThiefBot::ThiefBot(int startX, int startY, StudentWorld* world) : Robot(IID_THIEFBOT, startX, startY, right, 5, 10, world), memory(0)
+ThiefBot::ThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world) : Robot(imageID, startX, startY, right, health, points, world), memory(0)
 {
     distanceBeforeTurning = randInt(1, 6);
 }
@@ -474,7 +376,7 @@ void ThiefBot::doDifferentSomething()
     Actor *p = getWorld()->getActor(getX(),getY(), this);
     if (p != nullptr && p->stealable() > 0 && memory == 0) //goodie
     {
-        int pickup = randInt(1, 1);
+        int pickup = randInt(1, 10);
         if (pickup == 1)
         {
             memory = p->stealable();
@@ -551,6 +453,33 @@ void ThiefBot::damage(int damageAmt)
            }
     }
 }
+// MeanThiefBot
+MeanThiefBot::MeanThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world) : ThiefBot(imageID, startX, startY, health, points, world)
+{}
+
+void MeanThiefBot::doSomething()
+{
+    int ticks = (28 - getWorld()->getLevel()) / 4; // levelNumber is the current
+     // level number (0, 1, 2, etc.)
+    if (ticks < 3)
+     ticks = 3;
+    if (!Alive())
+        return;
+    increaseTicks();
+    if (getTicks() % ticks != 0)
+        return;
+    int dx = 0;
+    int dy = 0;
+    int direction = getDirection();
+    setdxdy(dx, dy, direction);
+    if (getWorld()->existsClearShotToPlayer(getX(), getY(), dx, dy))
+    {
+        Actor::fire(direction, getX(), getY());
+        getWorld()->playSound(SOUND_ENEMY_FIRE);
+        return;
+    }
+    ThiefBot::doDifferentSomething();
+}
 
 // ThiefBot Factory
 ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, int type, StudentWorld* world) :  Actor(imageID, startX, startY, -1, world), factoryType(type)
@@ -583,7 +512,7 @@ void ThiefBotFactory::doSomething()
     {
         for (double y = minY; y <= maxY; y++)
         {
-            Actor* target = getWorld()->getActor(x, y, this);
+            Actor* target = getWorld()->getTarget(x, y, this);
             if (target != nullptr && target->countsInFactoryCensus())
             {
                 count++;
@@ -597,12 +526,16 @@ void ThiefBotFactory::doSomething()
         {
             if (factoryType == 0)
             {
-                getWorld()->addActor(new ThiefBot(getX(), getY(),getWorld()));
+                getWorld()->addActor(new ThiefBot(IID_THIEFBOT, getX(), getY(), 5, 10, getWorld()));
                 getWorld()->playSound(SOUND_ROBOT_BORN);
                 return;
             }
-//            else if (factoryType == 1)
-//                getWorld()->addActor(new MeanThiefBot(getX(), getX(), getWorld()));
+            else if (factoryType == 1)
+            {
+                getWorld()->addActor(new MeanThiefBot(IID_MEAN_THIEFBOT, getX(), getY(), 8, 20, getWorld()));
+                getWorld()->playSound(SOUND_ROBOT_BORN);
+                return;
+            }
         }
     }
 }

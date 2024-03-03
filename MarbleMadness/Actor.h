@@ -30,8 +30,8 @@ public:
     virtual bool countsInFactoryCensus()  {return false;}
 protected:
     void moveActor(double x, double y, int dx, int dy);
-    
-    
+    void fire(int direction, double x, double y);
+    void setdxdy(int &x, int&y, int direction);
 private:
     int m_health;
     StudentWorld* m_world;
@@ -62,7 +62,6 @@ public:
     void addAmmo(int amount) {numPeas += amount;}
     virtual void damage(int damageAmt);
 private:
-    void fire(int direction, double x, double y);
     int numPeas;
 };
  
@@ -173,7 +172,7 @@ public:
 protected:
     int getTicks() {return m_ticks;}
     void increaseTicks() {m_ticks++;}
-    void setdxdy(int &x, int&y, int direction);
+
 private:
     virtual void doDifferentSomething() = 0;
     int m_score;
@@ -193,13 +192,22 @@ private:
 class ThiefBot : public Robot
 {
 public:
-    ThiefBot(int startX, int startY, StudentWorld* world);
+    ThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world);
     virtual bool countsInFactoryCensus() {return true;}
     virtual void damage(int damageAmt);
-private:
+protected:
     virtual void doDifferentSomething();
+private:
     int distanceBeforeTurning;
     int memory;
+};
+
+class MeanThiefBot : public ThiefBot
+{
+public:
+    MeanThiefBot(int imageID, int startX, int startY, int health, int points, StudentWorld* world);
+    virtual void doSomething();
+private:
 };
 
 class ThiefBotFactory : public Actor
