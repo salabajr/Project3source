@@ -217,7 +217,7 @@ void Marble::push(int direction, double X, double Y)
 Pit::Pit(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world)
 { // NOTE: non-damagable actors like pits and goodies start with an arbitrary health that cant be decreased inorder to not get cleaned up after each tick
     setVisible(true);
-    setHealth(100);
+    setHealth(10010);
 }
 
 void Pit::doSomething()
@@ -248,7 +248,7 @@ bool Item::updateItem()
     if (!Alive())
         return false;
     Avatar *p = getWorld()->getAvatar();
-    if (p->getX() == getX() && p->getY() == getY())
+    if (p->getX() == getX() && p->getY() == getY() && stolen == false)
     {  // Goodies and crystals increase score by different amounts
         getWorld()->increaseScore(pointBonus);
         setHealth(0);
@@ -292,7 +292,7 @@ void Ammo::doSomething()
 // EXIT
 Exit::Exit(int imageID, double startX, double startY, StudentWorld* world) : Actor(imageID, startX, startY, -1, world), m_exitExposed(false)
 { // exit starts out unexposed
-    setHealth(1);
+    setHealth(100);
     setVisible(false);
 }
 
@@ -384,7 +384,7 @@ ThiefBot::ThiefBot(int imageID, int startX, int startY, int health, int points, 
 void ThiefBot::doDifferentSomething()
 { // grabs a goodie if it shares the same position
     Actor *p = getWorld()->getActor(getX(), getY(), this);
-    if (p != nullptr && p->stealable() > 0 && goodieHeld == nullptr) //goodie and isnt holding another goodie
+    if (p != nullptr && p->stealable() == true && goodieHeld == nullptr) //goodie and isnt holding another goodie
     {
         int pickup = randInt(1, 10);
         if (pickup == 1)
@@ -429,16 +429,19 @@ void ThiefBot::doDifferentSomething()
         dx = 0;
         dy = 0;
         for (int i = 0; i < 4; i++)
-        {
+        { // consider a new direction
+            setDirection(randD);
            setdxdy(dx, dy, randD);
            if (getWorld()->isValidPos(getX()+dx, getY()+dy, this))
            { // the new direction allows to bot to move
                setDirection(randD);
+               moveTo(getX()+dx, getY()+dy);
                return;
            } // try a new direction;
             randD += 90;
         } // return to original direction
         randD += 90;
+        setDirection(randD);
         return;
     }
 }
@@ -489,7 +492,7 @@ void MeanThiefBot::doSomething()
 ThiefBotFactory::ThiefBotFactory(int imageID, double startX, double startY, ProductType type, StudentWorld* world) :  Actor(imageID, startX, startY, -1, world), factoryType(type)
 {
     setVisible(true);
-    setHealth(999);
+    setHealth(100);
 }
 
 void ThiefBotFactory::doSomething()

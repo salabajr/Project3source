@@ -26,13 +26,11 @@ StudentWorld::StudentWorld(string assetPath)
 
 void StudentWorld::addActor(Actor* actor)
 {
-    if (actor->stealable())
+    if (actor->canTakeDamage())
         m_actors.push_front(actor);
     else
-        m_actors.push_back(actor);  // Add the pointer to the end of the list
+        m_actors.push_back(actor);
 }
-
-
 
 int StudentWorld::init()
 {
